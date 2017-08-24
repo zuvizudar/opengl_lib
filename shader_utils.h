@@ -1,22 +1,18 @@
-/**
- * From the OpenGL Programming wikibook: http://en.wikibooks.org/wiki/OpenGL_Programming
- * This file is in the public domain.
- * Contributors: Sylvain Beucler
-
- fix:file_read
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <GL/glew.h>
 
-/**
- * Store all the file's contents in memory, useful to pass shaders
- * source code to OpenGL
- */
+#include<GL/glew.h>
+char* file_read(const char* filename);
+void print_log(GLuint object);
+GLuint create_shader(const char* filename,GLenum type);
+GLuint create_program(const char *vertexfile, const char *fragmentfile);
+GLint get_attrib(GLuint program,const char *name);
+GLint get_uniform(GLuint program,const char *name);
 char* file_read(const char* filename)
 {
-/*  FILE* in = fopen(filename, "rb");
+/*
+  FILE* in = fopen(filename, "rb");
   if (in == NULL) return NULL;
 
   int res_size = BUFSIZ;
@@ -37,28 +33,27 @@ char* file_read(const char* filename)
   res = (char*)realloc(res, nb_read_total + 1);
   res[nb_read_total] = '\0';
   return res;
-  */
-  FILE *in;
-  int file_len;
-  char *res;
-  in=fopen(file_name,"rb");
-  if(fp==NULL)return NULL;
+*/
+	FILE *fp;
+	int file_len;
+	char *res;
+	fp=fopen(filename,"rb");
+	if(fp==NULL){
+		return NULL;
+	}
+	fseek(fp,0,SEEK_END);
+	file_len=ftell(fp);
+	fseek(fp,0,SEEK_SET);
+	
+	res=(char*)malloc(file_len+1);
+	fread(res,file_len+1,1,fp);
+	fclose(fp);
 
-  fseek(in,0,SEEK_END);
-  file_len=ftell(in);
-  fseek(fp,0,SEEK_SET);
-  res=(char*)malloc(file_len+1);
-  fread(res,file_len+1,1,in);
-  fclose(in);
-
-  res[file_len]='/0';
-  return res;
+	res[file_len]='\0';
+	return res;
 
 }
 
-/**
- * Display compilation errors from the OpenGL shader compiler
- */
 void print_log(GLuint object)
 {
   GLint log_length = 0;
@@ -82,9 +77,6 @@ void print_log(GLuint object)
   free(log);
 }
 
-/**
- * Compile the shader from file 'filename', with error handling
- */
 GLuint create_shader(const char* filename, GLenum type)
 {
   const GLchar* source = file_read(filename);
@@ -230,3 +222,4 @@ GLint get_uniform(GLuint program, const char *name) {
 		fprintf(stderr, "Could not bind uniform %s\n", name);
 	return uniform;
 }
+
